@@ -40,20 +40,37 @@ public abstract class Error {
 
     public abstract List<Veto> vetoes();
 
+    /**
+     * The HTTP status of the failed response, or null when there was no response (e.g. a timeout).
+     */
+    @Nullable
+    public abstract Integer statusCode();
+
     Error() {
     }
 
-    @SerializedNames({ "context", "message", "exceptionName", "conflicted", "vetoes" })
     public static Error create(final String context, 
             final String message, 
             final String exceptionName, 
             final boolean conflicted, 
             final List<Veto> vetoes) {
         
-        return new AutoValue_Error(context, 
-                message, 
-                exceptionName, 
-                conflicted, 
-                BitbucketUtils.nullToEmpty(vetoes));
+        return create(context, message, exceptionName, conflicted, vetoes, null);
+    }
+
+    @SerializedNames({ "context", "message", "exceptionName", "conflicted", "vetoes", "statusCode" })
+    public static Error create(final String context,
+            final String message,
+            final String exceptionName,
+            final boolean conflicted,
+            final List<Veto> vetoes,
+            final Integer statusCode) {
+
+        return new AutoValue_Error(context,
+                message,
+                exceptionName,
+                conflicted,
+                BitbucketUtils.nullToEmpty(vetoes),
+                statusCode);
     }
 }

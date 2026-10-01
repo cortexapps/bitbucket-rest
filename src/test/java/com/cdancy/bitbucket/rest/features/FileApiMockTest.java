@@ -20,6 +20,7 @@ package com.cdancy.bitbucket.rest.features;
 import com.cdancy.bitbucket.rest.BitbucketApi;
 import com.cdancy.bitbucket.rest.BitbucketApiMetadata;
 import com.cdancy.bitbucket.rest.domain.commit.Commit;
+import com.cdancy.bitbucket.rest.domain.common.Error;
 import com.cdancy.bitbucket.rest.domain.file.LastModified;
 import com.cdancy.bitbucket.rest.domain.file.LinePage;
 import com.cdancy.bitbucket.rest.domain.file.RawContent;
@@ -89,6 +90,7 @@ public class FileApiMockTest extends BaseBitbucketMockTest {
             assertThat(rawContent.value()).isNull();
             assertThat(rawContent.errors().isEmpty()).isFalse();
             assertThat(rawContent.errors().get(0).message()).isEqualTo("Failed retrieving raw content");
+            assertThat(rawContent.errors().get(0).statusCode()).isEqualTo(404);
             assertSentAcceptText(server, getMethod, rawPath + filePath);
 
         } finally {
@@ -154,6 +156,47 @@ public class FileApiMockTest extends BaseBitbucketMockTest {
             assertSent(server, getMethod, browsePath + filePath);
         } finally {
             baseApi.close();
+            server.shutdown();
+        }
+    }
+
+    public void testListLinesOnNotFoundKeepsStatusAndBitbucketError() throws Exception {
+        final Error error = listLinesError(new MockResponse()
+                .setBody(payloadFromResource("/file-path-not-found.json")).setResponseCode(404));
+
+        assertThat(error.statusCode()).isEqualTo(404);
+        assertThat(error.message()).contains("does not exist at revision");
+        assertThat(error.exceptionName()).isEqualTo("com.atlassian.bitbucket.content.NoSuchPathException");
+    }
+
+    public void testListLinesOnNotFoundWithoutJsonBodyKeepsStatus() throws Exception {
+        final Error error = listLinesError(new MockResponse()
+                .setBody("<html><body>Not Found</body></html>").setResponseCode(404));
+
+        assertThat(error.statusCode()).isEqualTo(404);
+    }
+
+    public void testListLinesOnServerErrorWithoutBodyKeepsStatus() throws Exception {
+        final Error error = listLinesError(new MockResponse().setResponseCode(503));
+
+        assertThat(error.statusCode()).isEqualTo(503);
+    }
+
+    public void testListLinesOnUnreadableSuccessKeepsStatus() throws Exception {
+        final Error error = listLinesError(new MockResponse().setBody("not json").setResponseCode(200));
+
+        assertThat(error.statusCode()).isEqualTo(200);
+    }
+
+    private Error listLinesError(final MockResponse response) throws Exception {
+        final MockWebServer server = mockWebServer();
+        server.enqueue(response);
+        try (final BitbucketApi baseApi = api(server.getUrl("/"))) {
+            final LinePage linePage = baseApi.fileApi()
+                    .listLines(projectKey, repoKey, filePath, null, null, null, null, null, null);
+            assertThat(linePage.errors()).hasSize(1);
+            return linePage.errors().get(0);
+        } finally {
             server.shutdown();
         }
     }

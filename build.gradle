@@ -116,6 +116,8 @@ task mockTest(type: Test) {
     }
 }
 
+check.dependsOn mockTest
+
 task integTest(type: Test, dependsOn: ['mockTest']) {
     doFirst {
         def integProjectDir = project.file("${buildDir}/integ-projects")

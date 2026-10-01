@@ -73,12 +73,16 @@ import com.cdancy.bitbucket.rest.domain.sync.SyncState;
 import com.cdancy.bitbucket.rest.domain.sync.SyncStatus;
 import com.cdancy.bitbucket.rest.domain.tags.Tag;
 import com.cdancy.bitbucket.rest.domain.tags.TagPage;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import org.jclouds.Fallback;
+import org.jclouds.http.HttpResponseException;
 
 import java.util.Iterator;
 import java.util.List;
@@ -101,7 +105,7 @@ public final class BitbucketFallbacks {
                 if (obj != null) {
                     return Branch.create(null, null, null, null, null, false, null, null);
                 } else {
-                    return createBranchFromErrors(getErrors(throwable.getMessage()));
+                    return createBranchFromErrors(getErrors(throwable));
                 }
             }
             throw propagate(throwable);
@@ -112,7 +116,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createBranchModelFromErrors(getErrors(throwable.getMessage()));
+                return createBranchModelFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -122,7 +126,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createBranchModelConfigurationFromErrors(getErrors(throwable.getMessage()));
+                return createBranchModelConfigurationFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -132,7 +136,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createBranchPageFromErrors(getErrors(throwable.getMessage()));
+                return createBranchPageFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -142,7 +146,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createLikePageFromErrors(getErrors(throwable.getMessage()));
+                return createLikePageFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -152,7 +156,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createUserPageFromErrors(getErrors(throwable.getMessage()));
+                return createUserPageFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -162,7 +166,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createUserFromErrors(getErrors(throwable.getMessage()));
+                return createUserFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -172,7 +176,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createConditionFromErrors(getErrors(throwable.getMessage()));
+                return createConditionFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -182,7 +186,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createStatusPageFromErrors(getErrors(throwable.getMessage()));
+                return createStatusPageFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -192,7 +196,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createBranchPermissionPageFromErrors(getErrors(throwable.getMessage()));
+                return createBranchPermissionPageFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -202,7 +206,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createChangePageFromErrors(getErrors(throwable.getMessage()));
+                return createChangePageFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -212,7 +216,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createCommentsFromErrors(getErrors(throwable.getMessage()));
+                return createCommentsFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -222,7 +226,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createCommentPageFromErrors(getErrors(throwable.getMessage()));
+                return createCommentPageFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -232,7 +236,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createCommitPageFromErrors(getErrors(throwable.getMessage()));
+                return createCommitPageFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -242,7 +246,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createCommitFromErrors(getErrors(throwable.getMessage()));
+                return createCommitFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -252,7 +256,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createTagFromErrors(getErrors(throwable.getMessage()));
+                return createTagFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -262,7 +266,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createTaskFromErrors(getErrors(throwable.getMessage()));
+                return createTaskFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -272,7 +276,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createRepositoryFromErrors(getErrors(throwable.getMessage()));
+                return createRepositoryFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -282,7 +286,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createRepositoryPageFromErrors(getErrors(throwable.getMessage()));
+                return createRepositoryPageFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -292,7 +296,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createPermissionsPageFromErrors(getErrors(throwable.getMessage()));
+                return createPermissionsPageFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -302,7 +306,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createHookPageFromErrors(getErrors(throwable.getMessage()));
+                return createHookPageFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -312,7 +316,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createHookFromErrors(getErrors(throwable.getMessage()));
+                return createHookFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -322,7 +326,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createHookSettingsFromErrors(getErrors(throwable.getMessage()));
+                return createHookSettingsFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -332,7 +336,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createAnnotationsResponseFromErrors(getErrors(throwable.getMessage()));
+                return createAnnotationsResponseFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -342,7 +346,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createInsightReportFromErrors(getErrors(throwable.getMessage()));
+                return createInsightReportFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -352,7 +356,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createInsightReportPageFromErrors(getErrors(throwable.getMessage()));
+                return createInsightReportPageFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -362,7 +366,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createProjectFromErrors(getErrors(throwable.getMessage()));
+                return createProjectFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -372,7 +376,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createProjectPermissionsPageFromErrors(getErrors(throwable.getMessage()));
+                return createProjectPermissionsPageFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -382,7 +386,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createPullRequestSettingsFromErrors(getErrors(throwable.getMessage()));
+                return createPullRequestSettingsFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -392,7 +396,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createProjectPageFromErrors(getErrors(throwable.getMessage()));
+                return createProjectPageFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -402,7 +406,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createPullRequestFromErrors(getErrors(throwable.getMessage()));
+                return createPullRequestFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -415,7 +419,7 @@ public final class BitbucketFallbacks {
                 // if the repo sync is disabled a 204 is returned with 'null' as the content
                 final Boolean is204 = returnValueOnCodeOrNull(throwable, true, equalTo(204));
                 final boolean isAvailable = is204 != null;
-                final List<Error> errors = getErrors(throwable.getMessage());
+                final List<Error> errors = getErrors(throwable);
                 if (errors.size() > 0
                         && errors.get(0).context() != null
                         && errors.get(0).context().startsWith("Error parsing input: Cannot invoke \"org.jclouds.io.Payload.openStream()\" because the return value of \"org.jclouds.http.HttpResponse.getPayload()\" is null")) {
@@ -436,7 +440,7 @@ public final class BitbucketFallbacks {
                 if (is204 != null && is204.booleanValue()) {
                     return SyncState.create(null, null, "SYNCED", null, null);
                 } else {
-                    return createSyncStateFromErrors(getErrors(throwable.getMessage()));
+                    return createSyncStateFromErrors(getErrors(throwable));
                 }
             }
             throw propagate(throwable);
@@ -447,7 +451,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createActivitiesPageFromErrors(getErrors(throwable.getMessage()));
+                return createActivitiesPageFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -457,7 +461,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createParticipantsPageFromErrors(getErrors(throwable.getMessage()));
+                return createParticipantsPageFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -467,7 +471,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createParticipantsFromErrors(getErrors(throwable.getMessage()));
+                return createParticipantsFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -477,7 +481,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createPullRequestPageFromErrors(getErrors(throwable.getMessage()));
+                return createPullRequestPageFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -487,7 +491,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createTagPageFromErrors(getErrors(throwable.getMessage()));
+                return createTagPageFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -497,7 +501,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createMergeStatusFromErrors(getErrors(throwable.getMessage()));
+                return createMergeStatusFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -507,7 +511,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createLinePageFromErrors(getErrors(throwable.getMessage()));
+                return createLinePageFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -516,7 +520,7 @@ public final class BitbucketFallbacks {
     public static final class FilesPageOnError implements Fallback<Object> {
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createFilesPageFromErrors(getErrors(throwable.getMessage()));
+                return createFilesPageFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -525,7 +529,7 @@ public final class BitbucketFallbacks {
     public static final class LastModifiedOnError implements Fallback<Object> {
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createLastModifiedFromErrors(getErrors(throwable.getMessage()));
+                return createLastModifiedFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -536,7 +540,7 @@ public final class BitbucketFallbacks {
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
                 final Error error = Error.create(throwable.getMessage(), "Failed retrieving raw content",
-                        throwable.getClass().getName(), false, null);
+                        throwable.getClass().getName(), false, null, statusCode(findHttpFailure(throwable)));
                 return RawContent.create(null, Lists.newArrayList(error));
             }
             throw propagate(throwable);
@@ -548,7 +552,7 @@ public final class BitbucketFallbacks {
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
                 try {
-                    return createRequestStatusFromErrors(getErrors(throwable.getMessage()));
+                    return createRequestStatusFromErrors(getErrors(throwable));
                 } catch (JsonSyntaxException e) {
                     final Error error = Error.create(null, throwable.getMessage(),
                             throwable.getClass().getName(), false, null);
@@ -564,7 +568,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createWebHookPageFromErrors(getErrors(throwable.getMessage()));
+                return createWebHookPageFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -574,7 +578,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createWebHookFromErrors(getErrors(throwable.getMessage()));
+                return createWebHookFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -584,7 +588,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createPostWebHookFromErrors(getErrors(throwable.getMessage()));
+                return createPostWebHookFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -594,7 +598,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createPostWebHookListFromErrors(getErrors(throwable.getMessage()));
+                return createPostWebHookListFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -605,7 +609,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createAccessKeyFromErrors(getErrors(throwable.getMessage()));
+                return createAccessKeyFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -615,7 +619,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createAccessKeyPageFromErrors(getErrors(throwable.getMessage()));
+                return createAccessKeyPageFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -625,7 +629,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createLabelsPageFromErrors(getErrors(throwable.getMessage()));
+                return createLabelsPageFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -635,7 +639,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
-                return createLabelByNameFromErrors(getErrors(throwable.getMessage()));
+                return createLabelByNameFromErrors(getErrors(throwable));
             }
             throw propagate(throwable);
         }
@@ -853,6 +857,39 @@ public final class BitbucketFallbacks {
 
     public static Label createLabelByNameFromErrors(final List<Error> errors) {
         return Label.create("", errors);
+    }
+
+    /**
+     * Errors for a failed call. An HTTP failure is parsed from its response body, and every error
+     * carries the response's status; a failure without a response (e.g. a timeout) has none.
+     *
+     * @param throwable the failure the call ended with
+     * @return List of Error's, never empty
+     */
+    public static List<Error> getErrors(final Throwable throwable) {
+        final HttpResponseException httpFailure = findHttpFailure(throwable);
+        final String body = httpFailure == null ? null : httpFailure.getContent();
+        final List<Error> errors = getErrors(Strings.isNullOrEmpty(body) ? throwable.getMessage() : body);
+        final Integer statusCode = statusCode(httpFailure);
+        if (statusCode == null) {
+            return errors;
+        }
+        final List<Error> withStatus = Lists.newArrayList();
+        for (final Error error : errors) {
+            withStatus.add(Error.create(error.context(), error.message(), error.exceptionName(),
+                    error.conflicted(), error.vetoes(), statusCode));
+        }
+        return withStatus;
+    }
+
+    private static HttpResponseException findHttpFailure(final Throwable throwable) {
+        return (HttpResponseException) Iterables.find(Throwables.getCausalChain(throwable),
+                HttpResponseException.class::isInstance, null);
+    }
+
+    private static Integer statusCode(final HttpResponseException httpFailure) {
+        return httpFailure == null || httpFailure.getResponse() == null
+                ? null : httpFailure.getResponse().getStatusCode();
     }
 
     /**
