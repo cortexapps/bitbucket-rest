@@ -29,6 +29,7 @@ import com.cdancy.bitbucket.rest.domain.branch.BranchRestrictionEnumType;
 import com.cdancy.bitbucket.rest.domain.branch.BranchRestrictionPage;
 import com.cdancy.bitbucket.rest.domain.branch.Matcher;
 import com.cdancy.bitbucket.rest.domain.branch.Type;
+import com.cdancy.bitbucket.rest.domain.common.Error;
 import com.cdancy.bitbucket.rest.domain.common.RequestStatus;
 import com.cdancy.bitbucket.rest.domain.pullrequest.User;
 import com.cdancy.bitbucket.rest.BaseBitbucketMockTest;
@@ -224,6 +225,37 @@ public class BranchApiMockTest extends BaseBitbucketMockTest {
             assertThat(branch.id()).isNull();
             assertSent(server, localGetMethod, restBasePath + BitbucketApiMetadata.API_VERSION
                     + localProjectsPath + projectKey + localReposPath + repoKey + localBranchesPath + "/default");
+        } finally {
+            server.shutdown();
+        }
+    }
+
+    public void testGetDefaultBranchOnMissingRepoKeepsStatusAndBitbucketError() throws Exception {
+        final Error error = getDefaultBranchError(new MockResponse()
+                .setBody("{\"errors\":[{\"context\":null,\"message\":\"Repository PRJ/myrepo does not exist.\","
+                        + "\"exceptionName\":\"com.atlassian.bitbucket.repository.NoSuchRepositoryException\"}]}")
+                .setResponseCode(404));
+
+        assertThat(error.statusCode()).isEqualTo(404);
+        assertThat(error.message()).isEqualTo("Repository PRJ/myrepo does not exist.");
+    }
+
+    public void testGetDefaultBranchOnUnavailableRelayKeepsStatus() throws Exception {
+        final Error error = getDefaultBranchError(new MockResponse()
+                .setHeader("x-cortex-failure-class", "RELAY_UNAVAILABLE")
+                .setBody("relay unavailable")
+                .setResponseCode(555));
+
+        assertThat(error.statusCode()).isEqualTo(555);
+    }
+
+    private Error getDefaultBranchError(final MockResponse response) throws Exception {
+        final MockWebServer server = mockWebServer();
+        server.enqueue(response);
+        try (final BitbucketApi baseApi = api(server.getUrl("/"))) {
+            final Branch branch = baseApi.branchApi().getDefault(projectKey, repoKey);
+            assertThat(branch.errors()).hasSize(1);
+            return branch.errors().get(0);
         } finally {
             server.shutdown();
         }
