@@ -84,6 +84,7 @@ import com.google.gson.JsonSyntaxException;
 import org.jclouds.Fallback;
 import org.jclouds.http.HttpResponseException;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -539,6 +540,7 @@ public final class BitbucketFallbacks {
         @Override
         public Object createOrPropagate(final Throwable throwable) throws Exception {
             if (checkNotNull(throwable, "throwable") != null) {
+                propagateCallerFailure(throwable);
                 final Error error = Error.create(throwable.getMessage(), "Failed retrieving raw content",
                         throwable.getClass().getName(), false, null, statusCode(findHttpFailure(throwable)));
                 return RawContent.create(null, Lists.newArrayList(error));
@@ -867,6 +869,7 @@ public final class BitbucketFallbacks {
      * @return List of Error's, never empty
      */
     public static List<Error> getErrors(final Throwable throwable) {
+        propagateCallerFailure(throwable);
         final HttpResponseException httpFailure = findHttpFailure(throwable);
         final String body = httpFailure == null ? null : httpFailure.getContent();
         final List<Error> errors = getErrors(Strings.isNullOrEmpty(body) ? throwable.getMessage() : body);
@@ -880,6 +883,25 @@ public final class BitbucketFallbacks {
                     error.conflicted(), error.vetoes(), statusCode));
         }
         return withStatus;
+    }
+
+    /**
+     * A failure the HTTP stack hit before any response that is not an I/O failure is not Bitbucket's
+     * answer but the caller's own: an interceptor's throttle or rate-limit signal, or a bug. It is
+     * rethrown so the caller sees it, instead of being reported as a Bitbucket error.
+     *
+     * @param throwable the failure handed to a fallback
+     */
+    private static void propagateCallerFailure(final Throwable throwable) {
+        final HttpResponseException httpFailure = findHttpFailure(throwable);
+        if (httpFailure == null || httpFailure.getResponse() != null) {
+            return;
+        }
+        final Throwable cause = httpFailure.getCause();
+        if (cause != null && !(cause instanceof IOException)) {
+            Throwables.throwIfUnchecked(cause);
+            throw new RuntimeException(cause);
+        }
     }
 
     private static HttpResponseException findHttpFailure(final Throwable throwable) {

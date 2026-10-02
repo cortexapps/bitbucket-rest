@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Tests for {@link BitbucketFallbacks#getErrors(Throwable)} on failures the mock server cannot produce.
@@ -48,5 +49,25 @@ public class BitbucketFallbacksMockTest {
 
         assertThat(errors).hasSize(1);
         assertThat(errors.get(0).statusCode()).isEqualTo(429);
+    }
+
+    public void testCallerFailureBeforeAnyResponseIsRethrown() {
+        final IllegalStateException throttled = new IllegalStateException("Requests are delayed");
+        final Throwable wrapped = new RuntimeException(
+                new HttpResponseException("Requests are delayed connecting to GET /branches/default", null, null, throttled));
+
+        assertThatThrownBy(() -> BitbucketFallbacks.getErrors(wrapped)).isSameAs(throttled);
+        assertThatThrownBy(() -> new BitbucketFallbacks.RawContentOnError().createOrPropagate(wrapped))
+                .isSameAs(throttled);
+    }
+
+    public void testIoFailureBeforeAnyResponseIsAnError() {
+        final Throwable wrapped = new RuntimeException(new HttpResponseException(
+                "Connection refused connecting to GET /branches/default", null, null, new IOException("Connection refused")));
+
+        final List<Error> errors = BitbucketFallbacks.getErrors(wrapped);
+
+        assertThat(errors).hasSize(1);
+        assertThat(errors.get(0).statusCode()).isNull();
     }
 }
